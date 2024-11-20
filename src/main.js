@@ -21,6 +21,94 @@ if (import.meta.main) {
     Deno.exit(1);
   }
 
+  await doPath(filePath);
+  await doFile(filePath);
+}
+
+/**
+ * print string with red
+ * @param {string} str
+ */
+function printRed(str) {
+  console.log(`%c${str}`, 'color: red');
+}
+
+/**
+ * just normaly print string
+ * @param {string} str
+ */
+function printNormal(str) {
+  console.log(str);
+}
+
+function getCurrentJsFileName() {
+  return import.meta.filename ? import.meta.filename : '';
+}
+
+function printUsage() {
+  printNormal(
+    `usage:\ndeno run -A src/${
+      path.basename(getCurrentJsFileName())
+    } <file path>`,
+  );
+}
+
+/**
+ * process path
+ * @param {string} filePath
+ */
+async function doPath(filePath) {
+  const pathNames = [];
+
+  for await (const dirEntry of fs.walk(filePath)) {
+    if (dirEntry.isDirectory) {
+      pathNames.push(dirEntry.path);
+    }
+  }
+
+  if (!pathNames.length) {
+    printNormal(`no paths in ${filePath}`);
+    return;
+  }
+
+  printNormal('\n');
+
+  /**
+   * the paths to be converted
+   * @type {string[]}
+   */
+  const toTraditionalPathNames = [];
+
+  // check the path name
+  for (const pathName of pathNames) {
+    const baseName = path.basename(pathName);
+    const traditional = convert.toTraditional(baseName, true);
+
+    if (baseName !== traditional) {
+      printRed(`pathName:${pathName}, contains simplified Chinese`);
+      toTraditionalPathNames.push(pathName);
+    }
+  }
+
+  if (toTraditionalPathNames.length) {
+    const input = confirm(
+      'do you want to convert the path names listed above to traditional Chinese?',
+    );
+
+    if (input) {
+      toTraditionalPathNames.sort().reverse();
+      convertToTraditional(toTraditionalPathNames);
+    }
+  } else {
+    printNormal('all path names do not contain simplified Chinese');
+  }
+}
+
+/**
+ * process file
+ * @param {string} filePath
+ */
+async function doFile(filePath) {
   /**
    * all files in the specified path
    * @type {string[]}
@@ -28,16 +116,14 @@ if (import.meta.main) {
   const fileNames = [];
 
   for await (const dirEntry of fs.walk(filePath)) {
-    if (!dirEntry.isFile) {
-      continue;
+    if (dirEntry.isFile) {
+      fileNames.push(dirEntry.path);
     }
-
-    fileNames.push(dirEntry.path);
   }
 
   if (!fileNames.length) {
     printNormal(`no files in ${filePath}`);
-    Deno.exit(0);
+    return;
   }
 
   printNormal('\n');
@@ -71,23 +157,7 @@ if (import.meta.main) {
     );
 
     if (input) {
-      for (const fileName of toTraditionalFileNames) {
-        try {
-          // rename file only, does not rename path
-          const baseName = path.basename(fileName);
-          const filePath = path.dirname(fileName);
-          const traditional = convert.toTraditional(baseName, true);
-          const newFileName = path.join(filePath, traditional);
-          Deno.renameSync(fileName, newFileName);
-          printNormal(
-            `${fileName} -> ${newFileName}, convert to traditional Chinese complete`,
-          );
-        } catch (error) {
-          printRed(
-            `failed to convert to traditional Chinese, error:${error}`,
-          );
-        }
-      }
+      convertToTraditional(toTraditionalFileNames);
     }
   } else {
     printNormal('all filenames do not contain simplified Chinese');
@@ -95,29 +165,24 @@ if (import.meta.main) {
 }
 
 /**
- * print string with red
- * @param {string} str
+ * convert filename or path name to traditional Chinese
+ * @param {string[]} filesOrPaths
  */
-function printRed(str) {
-  console.log(`%c${str}`, 'color: red');
-}
-
-/**
- * just normaly print string
- * @param {string} str
- */
-function printNormal(str) {
-  console.log(str);
-}
-
-function getCurrentJsFileName() {
-  return import.meta.filename ? import.meta.filename : '';
-}
-
-function printUsage() {
-  printNormal(
-    `usage:\ndeno run -A src/${
-      path.basename(getCurrentJsFileName())
-    } <file path>`,
-  );
+function convertToTraditional(filesOrPaths) {
+  for (const oldName of filesOrPaths) {
+    try {
+      const baseName = path.basename(oldName);
+      const tempPath = path.dirname(oldName);
+      const traditional = convert.toTraditional(baseName, true);
+      const newName = path.join(tempPath, traditional);
+      Deno.renameSync(oldName, newName);
+      printNormal(
+        `${oldName} -> ${newName}, convert to traditional Chinese complete`,
+      );
+    } catch (error) {
+      printRed(
+        `failed to convert to traditional Chinese, error:${error}`,
+      );
+    }
+  }
 }

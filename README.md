@@ -1,6 +1,6 @@
-check the filename in the specified path recursively.  
+check the filename or sub path in the specified path recursively.  
 
-if the filename contains simplified Chinese, the program will try to rename the filename and convert simplified Chinese to traditional Chinese.  
+if the filename or the path contains simplified Chinese, the program will try to rename the filename and convert simplified Chinese to traditional Chinese.  
 
 usage:  
 ```
