@@ -4,13 +4,11 @@ if the filename contains simplified Chinese, the program will try to rename the 
 
 usage:  
 ```
-shell:
 deno run -A src/main.js <path>
 sh launch.sh <path>
 
-powershell:
-deno run -A .\src\main.js 'D:\music\'
-
 for example:
-sh launch.sh /d/music
+sh launch.sh ~/music/
+deno run -A src/main.js ~/music/
+deno run -A .\src\main.js 'D:\music\'
 ```

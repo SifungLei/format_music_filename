@@ -3,7 +3,7 @@ import * as path from '@std/path';
 import * as fs from '@std/fs';
 
 if (import.meta.main) {
-  if (!getCurrentFileName()) {
+  if (!getCurrentJsFileName()) {
     printRed('can not get current js filename');
     Deno.exit(1);
   }
@@ -110,14 +110,14 @@ function printNormal(str) {
   console.log(str);
 }
 
-function getCurrentFileName() {
+function getCurrentJsFileName() {
   return import.meta.filename ? import.meta.filename : '';
 }
 
 function printUsage() {
   printNormal(
     `usage:\ndeno run -A src/${
-      path.basename(getCurrentFileName())
+      path.basename(getCurrentJsFileName())
     } <file path>`,
   );
 }
