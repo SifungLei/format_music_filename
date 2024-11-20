@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+  },
+  "lint": {
+    "include": [
+      "src/"
+    ],
+    "exclude": [],
+    "rules": {
+      "tags": [
+        "recommended"
+      ],
+      "include": [
+        "ban-untagged-todo"
+      ],
+      "exclude": [
+        "no-unused-vars"
+      ]
+    }
+  },
+  "fmt": {
+    "semiColons": true,
+    "singleQuote": true,
+    "include": [
+      "src/"
+    ],
+    "exclude": []
+  },
+  "imports": {
+    "@raise/han-convert": "jsr:@raise/han-convert@^2.2.2",
+    "@std/fs": "jsr:@std/fs@^1.0.5",
+    "@std/path": "jsr:@std/path@^1.0.8"
+  },
+}
