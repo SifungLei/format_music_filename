@@ -144,10 +144,25 @@ async function doFile(filePath) {
       toTraditionalFileNames.push(fileName);
     }
 
-    const regex = new RegExp('^.+ - .+\\.\\w+$', 'g');
+    let regex = new RegExp('^.+ - .+\\.\\w+$', 'g');
 
     if (!regex.test(baseName)) {
-      printRed(`fileName:${fileName}, irregular`);
+      printRed(
+        `fileName:${fileName}, irregular, does not match with the basic contitiona`,
+      );
+    }
+
+    regex = new RegExp('^[a-zA-Z]$', 'g');
+    const charArr = Array.from(fileName);
+    const firstChar = charArr[0];
+
+    if (regex.test(firstChar)) {
+      // the first char of fileName is letter
+      if (firstChar !== firstChar.toUpperCase()) {
+        printRed(
+          `fileName:${fileName}, irregular, the first char is not a capital`,
+        );
+      }
     }
   }
 
