@@ -144,25 +144,45 @@ async function doFile(filePath) {
       toTraditionalFileNames.push(fileName);
     }
 
+    /*
+    a regular music filename should be like this:
+    Ayumi Hamasaki - Appears.mp3
+    */
     let regex = new RegExp('^.+ - .+\\.\\w+$', 'g');
 
     if (!regex.test(baseName)) {
       printRed(
-        `fileName:${fileName}, irregular, does not match with the basic contitiona`,
+        `fileName:${fileName}, irregular, does not match with the basic contition`,
       );
+      continue;
     }
 
-    regex = new RegExp('^[a-zA-Z]$', 'g');
-    const charArr = Array.from(fileName);
-    const firstChar = charArr[0];
+    const pathName = path.dirname(fileName);
+    const splitArr = baseName.split(' - ');
+    const artist = splitArr[0];
+    const lastDotIndex = splitArr[1].lastIndexOf('.');
+    const musicNameOnly = splitArr[1].substring(0, lastDotIndex);
+    const musicType = splitArr[1].substring(lastDotIndex + 1);
 
-    if (regex.test(firstChar)) {
-      // the first char of fileName is letter
-      if (firstChar !== firstChar.toUpperCase()) {
+    if (!pathName || !artist || !musicNameOnly || !musicType) {
+      printRed(
+        `dirName:${pathName}, artist:${artist}, musicNameOnly:${musicNameOnly}, musicType:${musicType}`,
+      );
+      continue;
+    }
+
+    checkFirstCharCapital(fileName, artist);
+    checkFirstCharCapital(fileName, musicNameOnly);
+
+    // check ()
+    if (baseName.includes('(') || baseName.includes(')')) {
+      regex = new RegExp('^.+ - .+? \\(.+\\)\\.\\w+$', 'g');
+      if (!regex.test(baseName)) {
         printRed(
-          `fileName:${fileName}, irregular, the first char is not a capital`,
+          `fileName:${fileName}, irregular, does not match with the ()`,
         );
       }
+      continue;
     }
   }
 
@@ -197,6 +217,25 @@ function convertToTraditional(filesOrPaths) {
     } catch (error) {
       printRed(
         `failed to convert to traditional Chinese, error:${error}`,
+      );
+    }
+  }
+}
+
+/**
+ * @param {string} fileName
+ * @param {string} strToCheck
+ */
+function checkFirstCharCapital(fileName, strToCheck) {
+  const regex = new RegExp('^[a-zA-Z]{1}$', 'g'); // letter
+  const charArr = Array.from(strToCheck);
+  const firstChar = charArr[0];
+
+  if (regex.test(firstChar)) {
+    // if the first char is letter, check if it's capital
+    if (firstChar !== firstChar.toUpperCase()) {
+      printRed(
+        `fileName:${fileName}, irregular, the first char of "${strToCheck}" is not capital`,
       );
     }
   }
