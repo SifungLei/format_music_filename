@@ -21,8 +21,8 @@ if (import.meta.main) {
     Deno.exit(1);
   }
 
-  await doPath(filePath);
-  await doFile(filePath);
+  await checkPath(filePath);
+  await checkFile(filePath);
 }
 
 /**
@@ -54,10 +54,9 @@ function printUsage() {
 }
 
 /**
- * process path
  * @param {string} filePath
  */
-async function doPath(filePath) {
+async function checkPath(filePath) {
   const pathNames = [];
 
   for await (const dirEntry of fs.walk(filePath)) {
@@ -105,10 +104,9 @@ async function doPath(filePath) {
 }
 
 /**
- * process file
  * @param {string} filePath
  */
-async function doFile(filePath) {
+async function checkFile(filePath) {
   /**
    * all files in the specified path
    * @type {string[]}
@@ -168,6 +166,14 @@ async function doFile(filePath) {
       printRed(
         `dirName:${pathName}, artist:${artist}, musicNameOnly:${musicNameOnly}, musicType:${musicType}`,
       );
+      continue;
+    }
+
+    if (
+      artist.startsWith(' ') || artist.endsWith(' ') ||
+      musicNameOnly.startsWith(' ') || musicNameOnly.endsWith(' ')
+    ) {
+      printRed(`fileName:${fileName}, includes extra space`);
       continue;
     }
 
